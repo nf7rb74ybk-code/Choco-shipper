@@ -24,8 +24,6 @@ color:#222;
 padding-bottom:75px;
 }
 
-/* HEADER */
-
 header{
 background:#ff6b00;
 color:white;
@@ -57,15 +55,11 @@ padding:9px 13px;
 font-weight:bold;
 }
 
-/* CONTAINER */
-
 .container{
 max-width:700px;
 margin:auto;
 padding:15px;
 }
-
-/* SEARCH */
 
 .search{
 width:100%;
@@ -76,8 +70,6 @@ font-size:16px;
 margin-bottom:15px;
 outline:none;
 }
-
-/* CATEGORY */
 
 .categories{
 display:flex;
@@ -99,15 +91,11 @@ background:#ff6b00;
 color:white;
 }
 
-/* TITLE */
-
 .title{
 font-size:20px;
 font-weight:bold;
 margin:18px 0 12px;
 }
-
-/* MAP */
 
 .map-box{
 background:white;
@@ -141,8 +129,6 @@ font-size:13px;
 margin-top:8px;
 color:#555;
 }
-
-/* RESTAURANT */
 
 .restaurant{
 background:white;
@@ -211,8 +197,6 @@ padding:8px 12px;
 font-weight:bold;
 }
 
-/* MODAL */
-
 .modal{
 display:none;
 position:fixed;
@@ -249,8 +233,6 @@ height:35px;
 font-size:20px;
 }
 
-/* CART */
-
 .cart-item{
 padding:12px 0;
 border-bottom:1px solid #eee;
@@ -280,8 +262,6 @@ text-align:center;
 padding:25px;
 color:#777;
 }
-
-/* FORM */
 
 .form{
 margin-top:15px;
@@ -332,8 +312,6 @@ font-weight:bold;
 opacity:.6;
 }
 
-/* BOTTOM */
-
 .bottom{
 position:fixed;
 bottom:0;
@@ -358,8 +336,6 @@ font-size:12px;
 display:block;
 font-size:22px;
 }
-
-/* SUCCESS */
 
 .success-box{
 display:none;
@@ -391,16 +367,14 @@ margin-top:15px;
 
 </header>
 
-
 <div class="container">
 
 <input
 class="search"
 id="search"
 placeholder="🔎 Tìm món ăn hoặc quán..."
-oninput="showRestaurants()"
+oninput="showRestaurants"
 >
-
 
 <div class="categories">
 
@@ -428,11 +402,9 @@ Tất cả
 
 </div>
 
-
 <div class="title">
 📍 Vị trí giao hàng
 </div>
-
 
 <div class="map-box">
 
@@ -457,7 +429,6 @@ Chưa lấy vị trí.
 
 </div>
 
-
 <div class="title">
 🍽️ Quán đang bán
 </div>
@@ -465,7 +436,6 @@ Chưa lấy vị trí.
 <div id="restaurants"></div>
 
 </div>
-
 
 <!-- GIỎ HÀNG -->
 
@@ -482,34 +452,23 @@ id="modal">
 <button
 class="close"
 onclick="closeCart()">
-
 ×
-
 </button>
 
 </div>
 
-
 <div id="cartItems"></div>
-
-
-<div id="orderForm">
 
 <div class="form">
 
-<label>
-Họ tên
-</label>
+<label>Họ tên</label>
 
 <input
 id="name"
 placeholder="Nguyễn Văn A"
 >
 
-
-<label>
-Số điện thoại
-</label>
+<label>Số điện thoại</label>
 
 <input
 id="phone"
@@ -517,30 +476,21 @@ type="tel"
 placeholder="09xxxxxxxx"
 >
 
-
-<label>
-Địa chỉ giao hàng
-</label>
+<label>Địa chỉ giao hàng</label>
 
 <input
 id="address"
 placeholder="Nhập địa chỉ giao hàng"
 >
 
-
-<label>
-Ghi chú
-</label>
+<label>Ghi chú</label>
 
 <textarea
 id="note"
 placeholder="Ví dụ: gọi trước khi giao..."
 ></textarea>
 
-
-<label>
-Thanh toán
-</label>
+<label>Thanh toán</label>
 
 <select id="payment">
 
@@ -556,19 +506,13 @@ Thanh toán
 
 </div>
 
-
 <div class="total">
 
-<span>
-Tổng
-</span>
+<span>Tổng</span>
 
-<span id="total">
-0đ
-</span>
+<span id="total">0đ</span>
 
 </div>
-
 
 <button
 class="order"
@@ -579,7 +523,6 @@ onclick="createOrder()">
 
 </button>
 
-
 <div
 class="success-box"
 id="successBox">
@@ -588,9 +531,6 @@ id="successBox">
 </div>
 
 </div>
-
-</div>
-
 
 <!-- MENU DƯỚI -->
 
@@ -604,7 +544,6 @@ Trang chủ
 
 </button>
 
-
 <button
 onclick="openCart()">
 
@@ -612,7 +551,6 @@ onclick="openCart()">
 Giỏ hàng
 
 </button>
-
 
 <button
 onclick="getGPS()">
@@ -624,11 +562,9 @@ GPS
 
 </div>
 
-
 <script
 src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
 </script>
-
 
 <script>
 
@@ -651,164 +587,118 @@ const data = [
 
 {
 id:1,
-
 name:"Cơm Nhà Phú Quốc",
-
 category:"cơm",
-
 rating:"4.9",
-
-image:
-"https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=80",
+image:"https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=500&q=80",
 
 foods:[
-
 {
 id:101,
 name:"Cơm gà",
 price:45000
 },
-
 {
 id:102,
 name:"Cơm sườn",
 price:50000
 },
-
 {
 id:103,
 name:"Cơm thịt kho",
 price:45000
 }
-
 ]
-
 },
-
 
 {
 id:2,
-
 name:"Bún Phú Quốc",
-
 category:"bún",
-
 rating:"4.8",
-
-image:
-"https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=500&q=80",
+image:"https://images.unsplash.com/photo-1559314809-0d155014e29e?auto=format&fit=crop&w=500&q=80",
 
 foods:[
-
 {
 id:201,
 name:"Bún bò",
 price:50000
 },
-
 {
 id:202,
 name:"Bún thịt nướng",
 price:45000
 },
-
 {
 id:203,
 name:"Bún chả",
 price:50000
 }
-
 ]
-
 },
-
 
 {
 id:3,
-
 name:"Gà Rán PQ",
-
 category:"gà",
-
 rating:"4.7",
-
-image:
-"https://images.unsplash.com/photo-1562967916-eb82221dfb92?auto=format&fit=crop&w=500&q=80",
+image:"https://images.unsplash.com/photo-1562967916-eb82221dfb92?auto=format&fit=crop&w=500&q=80",
 
 foods:[
-
 {
 id:301,
 name:"Gà rán",
 price:40000
 },
-
 {
 id:302,
 name:"Gà sốt cay",
 price:45000
 },
-
 {
 id:303,
 name:"Combo gà",
 price:70000
 }
-
 ]
-
 },
-
 
 {
 id:4,
-
 name:"Choco Drinks",
-
 category:"đồ uống",
-
 rating:"4.9",
-
-image:
-"https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=500&q=80",
+image:"https://images.unsplash.com/photo-1558857563-b371033873b8?auto=format&fit=crop&w=500&q=80",
 
 foods:[
-
 {
 id:401,
 name:"Trà sữa",
 price:30000
 },
-
 {
 id:402,
 name:"Trà đào",
 price:30000
 },
-
 {
 id:403,
 name:"Matcha",
 price:35000
 }
-
 ]
-
 }
 
 ];
 
 
-let cart = [];
+let cart=[];
 
-let currentCategory = "all";
+let currentCategory="all";
 
-let currentGPS = {
-
+let currentGPS={
 lat:null,
-
 lng:null
-
 };
 
 
@@ -818,7 +708,7 @@ TIỀN
 
 function money(n){
 
-return n.toLocaleString("vi-VN") + "đ";
+return Number(n).toLocaleString("vi-VN")+"đ";
 
 }
 
@@ -829,67 +719,63 @@ HIỂN THỊ QUÁN
 
 function showRestaurants(){
 
-const box =
+const box=
 document.getElementById("restaurants");
 
-const search =
+const search=
 document.getElementById("search")
 .value
-.toLowerCase();
+.toLowerCase()
+.trim();
 
-box.innerHTML = "";
+box.innerHTML="";
 
 
-data.forEach(r=>{
+data.forEach(function(r){
 
 if(
-currentCategory !== "all" &&
-r.category !== currentCategory
+currentCategory!=="all" &&
+r.category!==currentCategory
 ){
-
 return;
-
 }
 
 
 if(
 search &&
 !r.name.toLowerCase().includes(search) &&
-!r.foods.some(
-f=>f.name.toLowerCase().includes(search)
-)
+!r.foods.some(function(f){
+
+return f.name
+.toLowerCase()
+.includes(search);
+
+})
 ){
-
 return;
-
 }
 
 
-let foods = "";
+let foods="";
 
 
-r.foods.forEach(f=>{
+r.foods.forEach(function(f){
 
-foods += `
+foods+=`
 
 <div class="food">
 
 <div>
 
 <div class="food-name">
-
 ${f.name}
-
 </div>
 
 <div class="price">
-
 ${money(f.price)}
-
 </div>
 
 </div>
-
 
 <button
 class="add"
@@ -906,7 +792,7 @@ onclick="add(${r.id},${f.id})">
 });
 
 
-box.innerHTML += `
+box.innerHTML+=`
 
 <div class="restaurant">
 
@@ -921,21 +807,15 @@ loading="lazy"
 <div class="restaurant-info">
 
 <div class="restaurant-name">
-
 ${r.name}
-
 </div>
 
 <div class="rating">
-
 ⭐ ${r.rating}
-
 </div>
 
 <div class="open">
-
 🟢 Đang nhận đơn
-
 </div>
 
 </div>
@@ -959,20 +839,17 @@ DANH MỤC
 
 function category(cat,btn){
 
-currentCategory = cat;
-
+currentCategory=cat;
 
 document
 .querySelectorAll(".categories button")
-.forEach(x=>{
+.forEach(function(x){
 
 x.classList.remove("active");
 
 });
 
-
 btn.classList.add("active");
-
 
 showRestaurants();
 
@@ -985,19 +862,38 @@ THÊM MÓN
 
 function add(restaurantId,foodId){
 
-const restaurant =
-data.find(x=>x.id===restaurantId);
+const restaurant=
+data.find(function(x){
 
-const food =
-restaurant.foods.find(
-x=>x.id===foodId
-);
+return x.id===restaurantId;
+
+});
 
 
-const item =
-cart.find(
-x=>x.foodId===foodId
-);
+if(!restaurant){
+return;
+}
+
+
+const food=
+restaurant.foods.find(function(x){
+
+return x.id===foodId;
+
+});
+
+
+if(!food){
+return;
+}
+
+
+const item=
+cart.find(function(x){
+
+return x.foodId===foodId;
+
+});
 
 
 if(item){
@@ -1008,20 +904,15 @@ item.qty++;
 
 cart.push({
 
-restaurantId:
-restaurant.id,
+restaurantId:restaurant.id,
 
-restaurant:
-restaurant.name,
+restaurant:restaurant.name,
 
-foodId:
-food.id,
+foodId:food.id,
 
-name:
-food.name,
+name:food.name,
 
-price:
-food.price,
+price:food.price,
 
 qty:1
 
@@ -1032,9 +923,8 @@ qty:1
 
 updateCart();
 
-
 alert(
-"✅ Đã thêm " +
+"✅ Đã thêm "+
 food.name
 );
 
@@ -1042,38 +932,31 @@ food.name
 
 
 /* =====================================================
-CẬP NHẬT GIỎ
+GIỎ HÀNG
 ===================================================== */
 
 function updateCart(){
 
-let count = 0;
+let count=0;
 
+cart.forEach(function(x){
 
-cart.forEach(x=>{
-
-count += x.qty;
+count+=x.qty;
 
 });
 
-
 document.getElementById("count")
-.innerText = count;
+.innerText=count;
 
 }
 
-
-/* =====================================================
-MỞ GIỎ
-===================================================== */
 
 function openCart(){
 
 renderCart();
 
-
 document.getElementById("modal")
-.style.display = "flex";
+.style.display="flex";
 
 }
 
@@ -1081,27 +964,22 @@ document.getElementById("modal")
 function closeCart(){
 
 document.getElementById("modal")
-.style.display = "none";
+.style.display="none";
 
 }
 
 
-/* =====================================================
-HIỂN THỊ GIỎ
-===================================================== */
-
 function renderCart(){
 
-const box =
+const box=
 document.getElementById("cartItems");
 
+box.innerHTML="";
 
-box.innerHTML = "";
 
+if(cart.length===0){
 
-if(cart.length === 0){
-
-box.innerHTML = `
+box.innerHTML=`
 
 <div class="empty">
 
@@ -1111,27 +989,23 @@ box.innerHTML = `
 
 `;
 
-
 document.getElementById("total")
-.innerText = "0đ";
-
+.innerText="0đ";
 
 return;
 
 }
 
 
-let total = 0;
+let total=0;
 
 
-cart.forEach((item,i)=>{
+cart.forEach(function(item,i){
 
-total +=
-item.price *
-item.qty;
+total+=item.price*item.qty;
 
 
-box.innerHTML += `
+box.innerHTML+=`
 
 <div class="cart-item">
 
@@ -1147,14 +1021,11 @@ ${money(item.price)}
 
 </div>
 
-
 <div class="qty">
 
 <button
 onclick="changeQty(${i},-1)">
-
 −
-
 </button>
 
 <span>
@@ -1163,9 +1034,7 @@ ${item.qty}
 
 <button
 onclick="changeQty(${i},1)">
-
 +
-
 </button>
 
 </div>
@@ -1178,8 +1047,7 @@ onclick="changeQty(${i},1)">
 
 
 document.getElementById("total")
-.innerText =
-money(total);
+.innerText=money(total);
 
 }
 
@@ -1190,10 +1058,14 @@ money(total);
 
 function changeQty(i,n){
 
-cart[i].qty += n;
+if(!cart[i]){
+return;
+}
+
+cart[i].qty+=n;
 
 
-if(cart[i].qty <= 0){
+if(cart[i].qty<=0){
 
 cart.splice(i,1);
 
@@ -1213,7 +1085,7 @@ TẠO ĐƠN → SUPABASE
 
 async function createOrder(){
 
-if(cart.length === 0){
+if(cart.length===0){
 
 alert(
 "⚠️ Bạn chưa chọn món."
@@ -1224,27 +1096,23 @@ return;
 }
 
 
-const name =
+const name=
 document.getElementById("name")
-.value
-.trim();
+.value.trim();
 
-const phone =
+const phone=
 document.getElementById("phone")
-.value
-.trim();
+.value.trim();
 
-const address =
+const address=
 document.getElementById("address")
-.value
-.trim();
+.value.trim();
 
-const note =
+const note=
 document.getElementById("note")
-.value
-.trim();
+.value.trim();
 
-const payment =
+const payment=
 document.getElementById("payment")
 .value;
 
@@ -1284,22 +1152,21 @@ return;
 
 /* TÍNH TỔNG */
 
-let total = 0;
+let total=0;
 
+cart.forEach(function(item){
 
-cart.forEach(item=>{
-
-total +=
-item.price *
-item.qty;
+total+=
+Number(item.price)*
+Number(item.qty);
 
 });
 
 
 /* MÃ ĐƠN */
 
-const code =
-"CS" +
+const code=
+"CS"+
 Date.now()
 .toString()
 .slice(-6);
@@ -1307,7 +1174,7 @@ Date.now()
 
 /* DỮ LIỆU ĐƠN */
 
-const order = {
+const order={
 
 code:code,
 
@@ -1321,7 +1188,7 @@ note:note,
 
 payment:payment,
 
-items:cart,
+items:JSON.stringify(cart),
 
 total:total,
 
@@ -1330,38 +1197,30 @@ status:"Chờ xác nhận",
 time:new Date()
 .toISOString(),
 
-latitude:
-currentGPS.lat,
+latitude:currentGPS.lat,
 
-longitude:
-currentGPS.lng
+longitude:currentGPS.lng
 
 };
 
 
-/* BUTTON */
-
-const button =
+const button=
 document.getElementById(
 "orderButton"
 );
 
+button.disabled=true;
 
-button.disabled = true;
-
-button.innerText =
+button.innerText=
 "⏳ ĐANG GỬI ĐƠN...";
 
 
 try{
 
-
-/* GỬI SUPABASE */
-
-const response =
+const response=
 await fetch(
 
-SUPABASE_URL +
+SUPABASE_URL+
 "/rest/v1/orders",
 
 {
@@ -1377,11 +1236,11 @@ headers:{
 SUPABASE_KEY,
 
 "Authorization":
-"Bearer " +
+"Bearer "+
 SUPABASE_KEY,
 
 "Prefer":
-"return=minimal"
+"return=representation"
 
 },
 
@@ -1393,22 +1252,25 @@ JSON.stringify(order)
 );
 
 
-/* KIỂM TRA */
-
-if(!response.ok){
-
-const error =
+const result=
 await response.text();
 
 
-console.error(
-"SUPABASE ERROR:",
-error
+console.log(
+"SUPABASE STATUS:",
+response.status
+);
+
+console.log(
+"SUPABASE RESPONSE:",
+result
 );
 
 
+if(!response.ok){
+
 throw new Error(
-error ||
+result||
 "Supabase từ chối đơn hàng."
 );
 
@@ -1426,17 +1288,16 @@ JSON.stringify(order)
 );
 
 
-/* THÀNH CÔNG */
+/* HIỂN THỊ THÀNH CÔNG */
 
 document.getElementById(
 "successBox"
-).style.display =
-"block";
+).style.display="block";
 
 
 document.getElementById(
 "successBox"
-).innerHTML = `
+).innerHTML=`
 
 <strong>
 🎉 ĐẶT ĐƠN THÀNH CÔNG
@@ -1458,19 +1319,18 @@ ${money(total)}
 
 <br><br>
 
-🟢 Đang chờ CHOCO SHIP xác nhận.
+🟢 Đơn hàng đang chờ
+CHOCO SHIP xác nhận.
 
 `;
 
 
 alert(
 
-"🎉 ĐẶT ĐƠN THÀNH CÔNG!\n\n" +
-
-"Mã đơn: " +
-code +
-
-"\nTổng tiền: " +
+"🎉 ĐẶT ĐƠN THÀNH CÔNG!\n\n"+
+"Mã đơn: "+
+code+
+"\nTổng tiền: "+
 money(total)
 
 );
@@ -1478,56 +1338,52 @@ money(total)
 
 /* XÓA GIỎ */
 
-cart = [];
-
+cart=[];
 
 updateCart();
-
 
 renderCart();
 
 
-/* RESET */
+/* RESET FORM */
 
 document.getElementById("name")
-.value = "";
+.value="";
 
 document.getElementById("phone")
-.value = "";
+.value="";
 
 document.getElementById("address")
-.value = "";
+.value="";
 
 document.getElementById("note")
-.value = "";
+.value="";
 
 document.getElementById("payment")
-.value = "cash";
+.value="cash";
 
 
 }catch(error){
 
-
-console.error(error);
+console.error(
+"CHOCO SHIP ERROR:",
+error
+);
 
 
 alert(
 
-"❌ KHÔNG GỬI ĐƯỢC ĐƠN.\n\n" +
-
-"Supabase đang từ chối đơn hàng.\n\n" +
-
+"❌ KHÔNG GỬI ĐƯỢC ĐƠN.\n\n"+
+"Lỗi Supabase:\n\n"+
 error.message
 
 );
 
-
 }finally{
 
+button.disabled=false;
 
-button.disabled = false;
-
-button.innerText =
+button.innerText=
 "🚀 ĐẶT ĐƠN";
 
 }
@@ -1539,7 +1395,7 @@ button.innerText =
 BẢN ĐỒ
 ===================================================== */
 
-const map =
+const map=
 L.map("map")
 .setView(
 [10.2899,103.9840],
@@ -1548,9 +1404,7 @@ L.map("map")
 
 
 L.tileLayer(
-
 "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
 {
 
 maxZoom:19,
@@ -1559,11 +1413,10 @@ attribution:
 "© OpenStreetMap"
 
 }
-
 ).addTo(map);
 
 
-let marker = null;
+let marker=null;
 
 
 /* =====================================================
@@ -1583,45 +1436,39 @@ return;
 }
 
 
-const button =
+const button=
 document.getElementById(
 "gpsButton"
 );
 
 
-button.disabled = true;
+button.disabled=true;
 
-button.innerText =
+button.innerText=
 "⏳ ĐANG LẤY VỊ TRÍ...";
 
 
 document.getElementById(
 "locationText"
-)
-.innerText =
+).innerText=
 "📍 Đang lấy vị trí...";
 
 
 navigator.geolocation.getCurrentPosition(
 
-position=>{
+function(position){
 
-
-const lat =
+const lat=
 position.coords.latitude;
 
-const lng =
+const lng=
 position.coords.longitude;
 
 
-/* LƯU GPS */
+currentGPS.lat=lat;
 
-currentGPS.lat = lat;
+currentGPS.lng=lng;
 
-currentGPS.lng = lng;
-
-
-/* XÓA MARKER CŨ */
 
 if(marker){
 
@@ -1630,12 +1477,8 @@ map.removeLayer(marker);
 }
 
 
-/* TẠO MARKER */
-
-marker =
-L.marker(
-[lat,lng]
-)
+marker=
+L.marker([lat,lng])
 .addTo(map)
 .bindPopup(
 "📍 Vị trí giao hàng của bạn"
@@ -1643,48 +1486,37 @@ L.marker(
 .openPopup();
 
 
-/* DI CHUYỂN MAP */
-
 map.setView(
 [lat,lng],
 16
 );
 
 
-/* HIỂN THỊ */
-
 document.getElementById(
 "locationText"
-)
-.innerText =
+).innerText=
 
-"📍 GPS: " +
-
-lat.toFixed(6) +
-
-", " +
-
+"📍 GPS: "+
+lat.toFixed(6)+
+", "+
 lng.toFixed(6);
 
 
-button.disabled = false;
+button.disabled=false;
 
-button.innerText =
+button.innerText=
 "📍 CẬP NHẬT VỊ TRÍ";
-
 
 },
 
-error=>{
 
+function(error){
 
 console.error(error);
 
-
 alert(
 
-"⚠️ Không lấy được GPS.\n\n" +
-
+"⚠️ Không lấy được GPS.\n\n"+
 "Hãy cho phép trình duyệt sử dụng vị trí."
 
 );
@@ -1692,17 +1524,17 @@ alert(
 
 document.getElementById(
 "locationText"
-)
-.innerText =
+).innerText=
 "Chưa lấy được vị trí.";
 
 
-button.disabled = false;
+button.disabled=false;
 
-button.innerText =
+button.innerText=
 "📍 LẤY VỊ TRÍ HIỆN TẠI";
 
 },
+
 
 {
 
@@ -1720,7 +1552,7 @@ maximumAge:0
 
 
 /* =====================================================
-ĐÓNG MODAL KHI BẤM RA NGOÀI
+ĐÓNG MODAL
 ===================================================== */
 
 document.getElementById("modal")
@@ -1728,7 +1560,7 @@ document.getElementById("modal")
 "click",
 function(e){
 
-if(e.target === this){
+if(e.target===this){
 
 closeCart();
 
