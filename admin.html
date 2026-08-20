@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>CHOCO SHIP - ADMIN</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f3f4f6;
+  color:#222;
+}
+
+header{
+  background:#ff6b00;
+  color:white;
+  padding:16px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+.header{
+  max-width:1000px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:20px;
+  font-weight:bold;
+}
+
+.refresh{
+  border:0;
+  background:white;
+  color:#ff6b00;
+  padding:10px 14px;
+  border-radius:9px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+  padding:15px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.stat{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 2px 6px #ddd;
+}
+
+.stat b{
+  display:block;
+  font-size:22px;
+  margin-top:5px;
+}
+
+.orders{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.order{
+  background:white;
+  border-radius:14px;
+  padding:15px;
+  box-shadow:0 2px 7px #ddd;
+}
+
+.order-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.code{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.status{
+  padding:6px 9px;
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  background:#fef3c7;
+  color:#92400e;
+}
+
+.info{
+  line-height:1.7;
+  font-size:14px;
+}
+
+.items{
+  background:#f9fafb;
+  padding:10px;
+  border-radius:9px;
+  margin-top:10px;
+}
+
+.total{
+  margin-top:10px;
+  font-size:18px;
+  font-weight:bold;
+  color:#16a34a;
+}
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+
+.actions button{
+  border:0;
+  padding:10px 12px;
+  border-radius:8px;
+  color:white;
+  font-weight:bold;
+}
+
+.confirm{
+  background:#16a34a;
+}
+
+.ship{
+  background:#1677ff;
+}
+
+.done{
+  background:#7c3aed;
+}
+
+.cancel{
+  background:#dc2626;
+}
+
+.loading,
+.empty,
+.error{
+  background:white;
+  padding:25px;
+  text-align:center;
+  border-radius:12px;
+}
+
+@media(max-width:600px){
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .order-head{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="header">
+
+<div class="logo">
+🍔 CHOCO SHIP ADMIN
+</div>
+
+<button class="refresh" onclick="loadOrders()">
+🔄 Làm mới
+</button>
+
+</div>
+</header>
+
+
+<div class="container">
+
+<div class="stats">
+
+<div class="stat">
+📦 Tổng đơn
+<b id="totalOrders">0</b>
+</div>
+
+<div class="stat">
+⏳ Chờ xác nhận
+<b id="waitingOrders">0</b>
+</div>
+
+<div class="stat">
+🛵 Đang giao
+<b id="shippingOrders">0</b>
+</div>
+
+<div class="stat">
+✅ Hoàn thành
+<b id="doneOrders">0</b>
+</div>
+
+</div>
+
+
+<div id="orders" class="orders">
+
+<div class="loading">
+⏳ Đang tải đơn hàng...
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* ================================
+   SUPABASE
+================================ */
+
+const SUPABASE_URL =
+"https://guwdswqaqnhzqapflvey.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_AfTScx4Qcwmk3dk8pCo9Fg_kZgglof9";
+
+
+/* ================================
+   TIỀN
+================================ */
+
+function money(number){
+
+return Number(number || 0)
+.toLocaleString("vi-VN") + "đ";
+
+}
+
+
+/* ================================
+   LẤY ĐƠN
+================================ */
+
+async function loadOrders(){
+
+const box =
+document.getElementById("orders");
+
+box.innerHTML =
+`<div class="loading">⏳ Đang tải đơn hàng...</div>`;
+
+
+try{
+
+const response =
+await fetch(
+
+SUPABASE_URL +
+"/rest/v1/orders?select=*&order=time.desc",
+
+{
+
+headers:{
+
+"apikey":
+SUPABASE_KEY,
+
+"Authorization":
+"Bearer " + SUPABASE_KEY
+
+}
+
+}
+
+);
+
+
+const result =
+await response.text();
+
+
+if(!response.ok){
+
+throw new Error(result);
+
+}
+
+
+const orders =
+JSON.parse(result);
+
+
+showStats(orders);
+
+renderOrders(orders);
+
+
+}catch(error){
+
+console.error(error);
+
+box.innerHTML = `
+
+<div class="error">
+
+❌ Không tải được đơn hàng.
+
+<br><br>
+
+${error.message}
+
+</div>
+
+`;
+
+}
+
+}
+
+
+/* ================================
+   THỐNG KÊ
+================================ */
+
+function showStats(orders){
+
+document.getElementById(
+"totalOrders"
+).innerText = orders.length;
+
+
+document.getElementById(
+"waitingOrders"
+).innerText =
+
+orders.filter(
+x => x.status === "Chờ xác nhận"
+).length;
+
+
+document.getElementById(
+"shippingOrders"
+).innerText =
+
+orders.filter(
+x =>
+x.status === "Đang giao" ||
+x.status === "Shipper đã nhận"
+).length;
+
+
+document.getElementById(
+"doneOrders"
+).innerText =
+
+orders.filter(
+x => x.status === "Hoàn thành"
+).length;
+
+}
+
+
+/* ================================
+   HIỂN THỊ ĐƠN
+================================ */
+
+function renderOrders(orders){
+
+const box =
+document.getElementById("orders");
+
+
+if(!orders.length){
+
+box.innerHTML = `
+
+<div class="empty">
+
+📦 Chưa có đơn hàng.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+box.innerHTML = "";
+
+
+orders.forEach(order=>{
+
+let itemsHTML = "";
+
+
+try{
+
+let items =
+typeof order.items === "string"
+? JSON.parse(order.items)
+: order.items;
+
+
+if(Array.isArray(items)){
+
+items.forEach(item=>{
+
+itemsHTML += `
+<div>
+🍽️ ${item.name}
+× ${item.qty}
+— ${money(item.price * item.qty)}
+</div>
+`;
+
+});
+
+}
+
+}catch(e){
+
+itemsHTML =
+"Không đọc được danh sách món.";
+
+}
+
+
+const foodTotal =
+Number(
+order.food_total ||
+order.total ||
+0
+);
+
+
+const shippingFee =
+Number(
+order.shipping_fee ||
+0
+);
+
+
+const total =
+Number(
+order.total ||
+foodTotal + shippingFee
+);
+
+
+const status =
+order.status ||
+"Chờ xác nhận";
+
+
+let buttons = "";
+
+
+/* CHỜ XÁC NHẬN */
+
+if(status === "Chờ xác nhận"){
+
+buttons += `
+
+<button
+class="confirm"
+onclick="updateStatus('${order.code}','Đã xác nhận')">
+
+✅ Xác nhận đơn
+
+</button>
+
+`;
+
+}
+
+
+/* ĐÃ XÁC NHẬN */
+
+if(status === "Đã xác nhận"){
+
+buttons += `
+
+<button
+class="ship"
+onclick="updateStatus('${order.code}','Đang giao')">
+
+🛵 Cho shipper giao
+
+</button>
+
+`;
+
+}
+
+
+/* ĐANG GIAO */
+
+if(
+status === "Đang giao" ||
+status === "Shipper đã nhận"
+){
+
+buttons += `
+
+<button
+class="done"
+onclick="updateStatus('${order.code}','Hoàn thành')">
+
+✅ Hoàn thành
+
+</button>
+
+`;
+
+}
+
+
+/* HỦY */
+
+if(
+status !== "Hoàn thành" &&
+status !== "Đã hủy"
+){
+
+buttons += `
+
+<button
+class="cancel"
+onclick="updateStatus('${order.code}','Đã hủy')">
+
+❌ Hủy đơn
+
+</button>
+
+`;
+
+}
+
+
+box.innerHTML += `
+
+<div class="order">
+
+<div class="order-head">
+
+<div class="code">
+
+🧾 ${order.code || "Không có mã"}
+
+</div>
+
+<div class="status">
+
+${status}
+
+</div>
+
+</div>
+
+
+<div class="info">
+
+👤 <b>Khách:</b>
+${order.name || ""}
+
+<br>
+
+📞 <b>SĐT:</b>
+${order.phone || ""}
+
+<br>
+
+📍 <b>Địa chỉ:</b>
+${order.address || ""}
+
+<br>
+
+💳 <b>Thanh toán:</b>
+${order.payment === "bank"
+? "Chuyển khoản"
+: "Tiền mặt"}
+
+${order.note
+? `<br>📝 <b>Ghi chú:</b> ${order.note}`
+: ""}
+
+</div>
+
+
+<div class="items">
+
+${itemsHTML}
+
+</div>
+
+
+<div class="info">
+
+🍔 Tiền món:
+<b>${money(foodTotal)}</b>
+
+<br>
+
+🛵 Phí ship:
+<b>${money(shippingFee)}</b>
+
+</div>
+
+
+<div class="total">
+
+💰 Tổng:
+${money(total)}
+
+</div>
+
+
+<div class="info">
+
+${
+order.latitude && order.longitude
+?
+`📍 GPS:
+<a
+href="https://www.google.com/maps?q=${order.latitude},${order.longitude}"
+target="_blank">
+
+Mở bản đồ
+
+</a>`
+:
+"📍 Chưa có GPS"
+}
+
+</div>
+
+
+<div class="actions">
+
+${buttons}
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+/* ================================
+   ĐỔI TRẠNG THÁI
+================================ */
+
+async function updateStatus(code,status){
+
+if(!confirm(
+"Đổi đơn " +
+code +
+" thành:\n" +
+status +
+"?"
+)){
+
+return;
+
+}
+
+
+try{
+
+const response =
+await fetch(
+
+SUPABASE_URL +
+"/rest/v1/orders?code=eq." +
+encodeURIComponent(code),
+
+{
+
+method:"PATCH",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+"apikey":
+SUPABASE_KEY,
+
+"Authorization":
+"Bearer " + SUPABASE_KEY,
+
+"Prefer":
+"return=minimal"
+
+},
+
+body:JSON.stringify({
+
+status:status
+
+})
+
+}
+
+);
+
+
+const result =
+await response.text();
+
+
+if(!response.ok){
+
+throw new Error(result);
+
+}
+
+
+alert(
+"✅ Đã cập nhật đơn " +
+code
+);
+
+
+loadOrders();
+
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"❌ Không cập nhật được.\n\n" +
+error.message
+);
+
+}
+
+}
+
+
+/* ================================
+   TỰ ĐỘNG TẢI
+================================ */
+
+loadOrders();
+
+
+/* ================================
+   TỰ ĐỘNG CẬP NHẬT 10 GIÂY
+================================ */
+
+setInterval(
+loadOrders,
+10000
+);
+
+</script>
+
+</body>
+</html>
