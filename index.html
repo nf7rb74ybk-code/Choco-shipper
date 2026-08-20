@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>CHOCO SHIPPER</title>
+
+<link
+rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>
+
+<style>
+
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:#f3f4f6;
+color:#111827;
+padding-bottom:30px;
+}
+
+header{
+background:#ff6b00;
+color:white;
+padding:16px;
+position:sticky;
+top:0;
+z-index:1000;
+box-shadow:0 2px 8px #aaa;
+}
+
+.header{
+max-width:700px;
+margin:auto;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.logo{
+font-size:21px;
+font-weight:bold;
+}
+
+.refresh{
+border:0;
+background:white;
+color:#ff6b00;
+padding:9px 12px;
+border-radius:9px;
+font-weight:bold;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:15px;
+}
+
+.status-box{
+background:white;
+border-radius:14px;
+padding:15px;
+margin-bottom:15px;
+box-shadow:0 2px 8px #ddd;
+}
+
+.status-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.status{
+font-weight:bold;
+color:#16a34a;
+}
+
+.order{
+background:white;
+border-radius:15px;
+padding:15px;
+margin-bottom:15px;
+box-shadow:0 2px 8px #ddd;
+}
+
+.order-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:12px;
+}
+
+.order-code{
+font-size:19px;
+font-weight:bold;
+color:#ff6b00;
+}
+
+.badge{
+padding:6px 9px;
+border-radius:8px;
+font-size:12px;
+font-weight:bold;
+background:#fff7ed;
+color:#ea580c;
+}
+
+.info{
+margin:9px 0;
+line-height:1.5;
+}
+
+.label{
+font-weight:bold;
+}
+
+.money{
+font-weight:bold;
+color:#16a34a;
+}
+
+.map{
+height:230px;
+border-radius:12px;
+margin-top:12px;
+overflow:hidden;
+}
+
+.buttons{
+display:flex;
+gap:8px;
+margin-top:12px;
+}
+
+.buttons button{
+flex:1;
+border:0;
+padding:12px;
+border-radius:10px;
+font-weight:bold;
+font-size:14px;
+}
+
+.accept{
+background:#16a34a;
+color:white;
+}
+
+.delivering{
+background:#1677ff;
+color:white;
+}
+
+.done{
+background:#111827;
+color:white;
+}
+
+.call{
+background:#e5e7eb;
+color:#111827;
+}
+
+.empty{
+background:white;
+border-radius:15px;
+padding:35px 15px;
+text-align:center;
+color:#6b7280;
+box-shadow:0 2px 8px #ddd;
+}
+
+.loading{
+text-align:center;
+padding:25px;
+}
+
+.error{
+background:#fee2e2;
+color:#991b1b;
+padding:14px;
+border-radius:12px;
+margin-bottom:15px;
+white-space:pre-wrap;
+}
+
+.items{
+background:#f9fafb;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+font-size:14px;
+}
+
+.item{
+display:flex;
+justify-content:space-between;
+padding:5px 0;
+border-bottom:1px solid #eee;
+}
+
+.item:last-child{
+border-bottom:0;
+}
+
+.reload{
+width:100%;
+margin-top:10px;
+border:0;
+background:#ff6b00;
+color:white;
+padding:13px;
+border-radius:10px;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="header">
+
+<div class="logo">
+🛵 CHOCO SHIPPER
+</div>
+
+<button
+class="refresh"
+onclick="loadOrders()">
+
+🔄 Làm mới
+
+</button>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+<div class="status-box">
+
+<div class="status-title">
+📦 Đơn hàng
+</div>
+
+<div>
+Trạng thái:
+<span
+class="status"
+id="connectionStatus">
+Đang tải...
+</span>
+</div>
+
+<div style="margin-top:6px">
+Số đơn:
+<strong id="orderCount">0</strong>
+</div>
+
+</div>
+
+
+<div id="errorBox"></div>
+
+<div id="orders">
+
+<div class="loading">
+⏳ Đang tải đơn hàng...
+</div>
+
+</div>
+
+</div>
+
+
+<script
+src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+</script>
+
+
+<script>
+
+/* =====================================================
+SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+"https://guwdswqaqnhzqapflvey.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_AfTScx4Qcwmk3dk8pCo9Fg_kZgglof9";
+
+
+/* =====================================================
+BIẾN
+===================================================== */
+
+let maps = {};
+
+let markers = {};
+
+
+/* =====================================================
+TIỀN
+===================================================== */
+
+function money(number){
+
+return Number(number || 0)
+.toLocaleString("vi-VN") + "đ";
+
+}
+
+
+/* =====================================================
+HTML AN TOÀN
+===================================================== */
+
+function escapeHTML(value){
+
+if(value === null ||
+value === undefined){
+
+return "";
+
+}
+
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+LẤY ĐƠN
+===================================================== */
+
+async function loadOrders(){
+
+const box =
+document.getElementById("orders");
+
+const errorBox =
+document.getElementById("errorBox");
+
+const status =
+document.getElementById("connectionStatus");
+
+box.innerHTML = `
+<div class="loading">
+⏳ Đang tải đơn hàng...
+</div>
+`;
+
+errorBox.innerHTML = "";
+
+try{
+
+const response = await fetch(
+
+SUPABASE_URL +
+"/rest/v1/orders?select=*&order=time.desc",
+
+{
+
+method:"GET",
+
+headers:{
+
+"apikey":
+SUPABASE_KEY,
+
+"Authorization":
+"Bearer " +
+SUPABASE_KEY
+
+}
+
+}
+
+);
+
+const text =
+await response.text();
+
+console.log(
+"ORDERS:",
+response.status,
+text
+);
+
+
+if(!response.ok){
+
+throw new Error(
+text ||
+"Không thể tải đơn hàng."
+);
+
+}
+
+
+let orders = [];
+
+try{
+
+orders =
+JSON.parse(text);
+
+}catch(e){
+
+orders = [];
+
+}
+
+
+status.innerText =
+"🟢 Đã kết nối";
+
+
+document.getElementById(
+"orderCount"
+).innerText =
+orders.length;
+
+
+if(!orders.length){
+
+box.innerHTML = `
+
+<div class="empty">
+
+<div style="font-size:40px">
+📦
+</div>
+
+<br>
+
+<strong>
+Chưa có đơn hàng
+</strong>
+
+<br><br>
+
+Khi khách đặt đơn,
+đơn sẽ xuất hiện ở đây.
+
+<button
+class="reload"
+onclick="loadOrders()">
+
+🔄 Kiểm tra lại
+
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+box.innerHTML = "";
+
+
+/* HIỂN THỊ */
+
+orders.forEach(order=>{
+
+box.innerHTML +=
+createOrderHTML(order);
+
+});
+
+
+/* TẠO BẢN ĐỒ */
+
+setTimeout(()=>{
+
+orders.forEach(order=>{
+
+createMap(order);
+
+});
+
+},100);
+
+
+}
+
+catch(error){
+
+console.error(error);
+
+status.innerText =
+"🔴 Lỗi kết nối";
+
+errorBox.innerHTML = `
+
+<div class="error">
+
+❌ Không tải được đơn hàng.
+
+${escapeHTML(error.message)}
+
+</div>
+
+`;
+
+box.innerHTML = "";
+
+}
+
+}
+
+
+/* =====================================================
+TẠO HTML ĐƠN
+===================================================== */
+
+function createOrderHTML(order){
+
+let itemsHTML = "";
+
+let items = order.items;
+
+
+/* items có thể là JSON string */
+
+if(typeof items === "string"){
+
+try{
+
+items = JSON.parse(items);
+
+}catch(e){
+
+items = [];
+
+}
+
+}
+
+
+if(Array.isArray(items)){
+
+items.forEach(item=>{
+
+itemsHTML += `
+
+<div class="item">
+
+<span>
+
+${escapeHTML(item.name || "Món ăn")}
+
+× ${Number(item.qty || 1)}
+
+</span>
+
+<strong>
+
+${money(
+Number(item.price || 0) *
+Number(item.qty || 1)
+)}
+
+</strong>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+if(!itemsHTML){
+
+itemsHTML =
+"<div>Không có thông tin món.</div>";
+
+}
+
+
+/* STATUS */
+
+const status =
+String(order.status || "Chờ xác nhận");
+
+
+let buttonHTML = "";
+
+
+if(
+status === "Chờ xác nhận"
+){
+
+buttonHTML = `
+
+<button
+class="accept"
+onclick="updateStatus('${escapeJS(order.code)}','Đã nhận đơn')">
+
+✅ NHẬN ĐƠN
+
+</button>
+
+`;
+
+}
+
+else if(
+status === "Đã nhận đơn"
+){
+
+buttonHTML = `
+
+<button
+class="delivering"
+onclick="updateStatus('${escapeJS(order.code)}','Đang giao')">
+
+🛵 BẮT ĐẦU GIAO
+
+</button>
+
+`;
+
+}
+
+else if(
+status === "Đang giao"
+){
+
+buttonHTML = `
+
+<button
+class="done"
+onclick="updateStatus('${escapeJS(order.code)}','Đã giao')">
+
+✅ ĐÃ GIAO
+
+</button>
+
+`;
+
+}
+
+else{
+
+buttonHTML = `
+
+<button
+class="done"
+disabled>
+
+✓ ${escapeHTML(status)}
+
+</button>
+
+`;
+
+}
+
+
+const phone =
+String(order.phone || "");
+
+
+return `
+
+<div class="order">
+
+<div class="order-head">
+
+<div class="order-code">
+
+${escapeHTML(
+order.code || "Không có mã"
+)}
+
+</div>
+
+<div class="badge">
+
+${escapeHTML(status)}
+
+</div>
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+👤 Khách:
+</span>
+
+${escapeHTML(order.name)}
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+📞 SĐT:
+</span>
+
+${escapeHTML(phone)}
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+📍 Địa chỉ:
+</span>
+
+${escapeHTML(order.address)}
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+💳 Thanh toán:
+</span>
+
+${escapeHTML(order.payment)}
+
+</div>
+
+
+<div class="items">
+
+<strong>
+🍔 Món đã đặt
+</strong>
+
+${itemsHTML}
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+💰 Tiền món:
+</span>
+
+<span class="money">
+
+${money(order.food_total)}
+
+</span>
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+🛵 Phí ship:
+</span>
+
+<span class="money">
+
+${money(order.shipping_fee)}
+
+</span>
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+💵 Tổng:
+</span>
+
+<span class="money">
+
+${money(order.total)}
+
+</span>
+
+</div>
+
+
+<div class="info">
+
+<span class="label">
+📝 Ghi chú:
+</span>
+
+${escapeHTML(order.note || "Không có")}
+
+</div>
+
+
+<div
+class="map"
+id="map-${escapeHTML(order.code)}">
+
+</div>
+
+
+<div class="buttons">
+
+${buttonHTML}
+
+${phone ? `
+
+<button
+class="call"
+onclick="callCustomer('${escapeJS(phone)}')">
+
+📞 GỌI
+
+</button>
+
+` : ""}
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+/* =====================================================
+ESCAPE JS
+===================================================== */
+
+function escapeJS(value){
+
+return String(value || "")
+.replace(/\\/g,"\\\\")
+.replace(/'/g,"\\'")
+.replace(/"/g,'\\"')
+.replace(/\n/g,"\\n")
+.replace(/\r/g,"");
+
+}
+
+
+/* =====================================================
+BẢN ĐỒ
+===================================================== */
+
+function createMap(order){
+
+const id =
+"map-" +
+String(order.code || "")
+.replace(/[^a-zA-Z0-9_-]/g,"");
+
+
+const mapElement =
+document.getElementById(id);
+
+if(!mapElement){
+
+return;
+
+}
+
+
+const lat =
+Number(order.latitude);
+
+const lng =
+Number(order.longitude);
+
+
+/* Không có GPS */
+
+if(
+!Number.isFinite(lat) ||
+!Number.isFinite(lng)
+){
+
+mapElement.innerHTML = `
+
+<div style="
+padding:20px;
+text-align:center;
+color:#777;
+">
+
+📍 Khách chưa gửi vị trí GPS.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+/* TẠO MAP */
+
+const map =
+L.map(mapElement)
+.setView(
+[lat,lng],
+16
+);
+
+
+L.tileLayer(
+
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+
+{
+
+maxZoom:19,
+
+attribution:
+"© OpenStreetMap"
+
+}
+
+).addTo(map);
+
+
+/* MARKER */
+
+const marker =
+L.marker([lat,lng])
+.addTo(map)
+.bindPopup(
+
+"📍 Vị trí khách giao hàng"
+
+)
+.openPopup();
+
+
+maps[order.code] =
+map;
+
+markers[order.code] =
+marker;
+
+}
+
+
+/* =====================================================
+CẬP NHẬT TRẠNG THÁI
+===================================================== */
+
+async function updateStatus(code,status){
+
+if(!code){
+
+return;
+
+}
+
+
+const confirmText =
+"Bạn muốn chuyển đơn " +
+code +
+" sang:\n\n" +
+status +
+"?";
+
+
+if(!confirm(confirmText)){
+
+return;
+
+}
+
+
+try{
+
+const response =
+await fetch(
+
+SUPABASE_URL +
+"/rest/v1/orders?code=eq." +
+encodeURIComponent(code),
+
+{
+
+method:"PATCH",
+
+headers:{
+
+"Content-Type":
+"application/json",
+
+"apikey":
+SUPABASE_KEY,
+
+"Authorization":
+"Bearer " +
+SUPABASE_KEY,
+
+"Prefer":
+"return=minimal"
+
+},
+
+body:JSON.stringify({
+
+status:status
+
+})
+
+}
+
+);
+
+
+const text =
+await response.text();
+
+
+console.log(
+"UPDATE:",
+response.status,
+text
+);
+
+
+if(!response.ok){
+
+throw new Error(
+text ||
+"Không thể cập nhật đơn."
+);
+
+}
+
+
+alert(
+"✅ Đã cập nhật đơn " +
+code +
+"\n\n" +
+status
+);
+
+
+loadOrders();
+
+}
+
+catch(error){
+
+console.error(error);
+
+alert(
+"❌ Không cập nhật được đơn.\n\n" +
+error.message
+);
+
+}
+
+}
+
+
+/* =====================================================
+GỌI KHÁCH
+===================================================== */
+
+function callCustomer(phone){
+
+if(!phone){
+
+return;
+
+}
+
+window.location.href =
+"tel:" + phone;
+
+}
+
+
+/* =====================================================
+TỰ ĐỘNG KIỂM TRA
+===================================================== */
+
+loadOrders();
+
+
+/*
+Kiểm tra đơn mới mỗi 15 giây
+*/
+
+setInterval(
+
+loadOrders,
+
+15000
+
+);
+
+</script>
+
+</body>
+</html>
